@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         검수 DB
 // @namespace    yeouidogold
-// @version      1.0
-// @description  주문 검수 데이터 추출 스크립트
+// @version      1.0.0
+// @description  주문 검수 스크립트
 // @match        *://*/order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
 // @connect      script.google.com
 // @connect      script.googleusercontent.com
+// @updateURL    https://raw.github.com/kiwonjin-hash/nexus-erp-tamper/raw/refs/heads/main/order-db.user.js
+// @downloadURL  https://raw.github.com/kiwonjin-hash/nexus-erp-tamper/raw/refs/heads/main/order-db.user.js
 // ==/UserScript==
 
 (function () {
