@@ -7,8 +7,8 @@
 // @grant        GM_xmlhttpRequest
 // @connect      script.google.com
 // @connect      script.googleusercontent.com
-// @updateURL    https://raw.github.com/kiwonjin-hash/nexus-erp-tamper/raw/refs/heads/main/order-db.user.js
-// @downloadURL  https://raw.github.com/kiwonjin-hash/nexus-erp-tamper/raw/refs/heads/main/order-db.user.js
+// @updateURL    https://raw.githubusercontent.com/kiwonjin-hash/nexus-erp-tamper/main/order-db.user.js
+// @downloadURL  https://raw.githubusercontent.com/kiwonjin-hash/nexus-erp-tamper/main/order-db.user.js
 // ==/UserScript==
 
 (function () {
