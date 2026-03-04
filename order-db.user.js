@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         검수 DB
 // @namespace    yeouidogold
-// @version      1.0.0
+// @version      1.0.1
 // @description  주문 검수 스크립트
 // @match        *://*/order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
@@ -14,7 +14,7 @@
 (function () {
   "use strict";
 
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwUml35_1v3aXkfVfhOyn_gAT47FX0zNkip9_uw2paL0ZuC6q_xglMsAOSpf7nAFWFQ/exec";
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyCfcOy1UfT1FUfhrLMml6YMOk_58lDmbAVl2OMefT-BsR3uV1Xt4FsNp7BFYF_VS4J8Q/exec";
 
   const ORDER_NO_RE = /\b20\d{10,}\b/;
   const PHONE_RE = /01[0-9]-\d{3,4}-\d{4}/;
