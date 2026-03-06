@@ -3,7 +3,7 @@
 // @namespace    yeouidogold
 // @version      1.0.1
 // @description  주문 검수 스크립트
-// @match        *://*/order_print_popup.cm*
+// @match        *://*/*order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
 // @connect      script.google.com
 // @connect      script.googleusercontent.com
@@ -14,7 +14,7 @@
 (function () {
   "use strict";
 
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyCfcOy1UfT1FUfhrLMml6YMOk_58lDmbAVl2OMefT-BsR3uV1Xt4FsNp7BFYF_VS4J8Q/exec";
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyjLQA-9afym53zPdXLZG0JUUdaZBQk2ZAx2hJxZDPRJZ3xbI7nAd01GxKN6l0xMItWCw/exec";
 
   const ORDER_NO_RE = /\b20\d{10,}\b/;
   const PHONE_RE = /01[0-9]-\d{3,4}-\d{4}/;
