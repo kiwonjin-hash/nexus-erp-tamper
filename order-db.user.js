@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         검수 DB
 // @namespace    yeouidogold
-// @version      1.0.1
+// @version      1.0.2
 // @description  주문 검수 스크립트
 // @match        *://*/*order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
@@ -48,6 +48,30 @@
     const address = shippingPs[0]?.innerText.trim() || "";
     const shippingPhone = shippingPs[1]?.innerText.trim() || "";
     const receiver = shippingPs[2]?.innerText.trim() || "";
+
+    // ==========================
+    // 🔥 배송 타입 판단 (Tamper 단계에서 결정)
+    // ==========================
+
+    const numericTotal = Number((total_price || "").replace(/[^\d]/g, "")) || 0;
+    const cleanTracking = (tracking || "").trim();
+    const cleanAddress = (address || "").replace(/\s/g, "");
+
+    let deliveryType = "POST";
+
+    // 1️⃣ 주소가 비어있거나 (), → 방문수령
+    if (!cleanAddress || cleanAddress === "(),") {
+      deliveryType = "PICKUP";
+    }
+    // 2️⃣ 천만원 이상 + 운송장 없음 → VALEX
+    else if (numericTotal >= 10000000 && !cleanTracking) {
+      deliveryType = "VALEX";
+    }
+    // 3️⃣ 천만원 미만 + 운송장 없음 → 방문수령
+    else if (numericTotal < 10000000 && !cleanTracking) {
+      deliveryType = "PICKUP";
+    }
+    // 4️⃣ 그 외 → POST
 
     /* ==========================
        🔥 주문자 정보 정확 추출
@@ -109,6 +133,7 @@ if (tds.length === 6) {
     qty,
     unit_price: unitPrice,
     total_price: subtotal,
+    deliveryType,
     type: "product",
     status: status.replace(/\s/g,"") // 공백 제거
   });
@@ -145,6 +170,7 @@ if (shippingFee) {
     qty: "",
     unit_price: "",
     total_price: shippingFee,
+    deliveryType,
     type: "shipping"
 
   });
