@@ -14,7 +14,7 @@
 (function () {
   "use strict";
 
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx_iydBXNvhEXYBQhgefOhyLA-Oa34VFfIkr7TSf99dkmvlPqbnB70kf7HibhnS4-bdvA/exec";
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyZQy6NepJYpE9Ew4pemEtqNEuLxJi_h2Tg8OGfe_n4ng_kYyE5eYYWAsbHtjtGMW5jUg/exec";
 
   const ORDER_NO_RE = /\b20\d{10,}\b/;
   const PHONE_RE = /01[0-9]-\d{3,4}-\d{4}/;
