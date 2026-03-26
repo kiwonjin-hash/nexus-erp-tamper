@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         검수 DB
 // @namespace    yeouidogold
-// @version      1.0.3
+// @version      1.0.4
 // @description  주문 검수 스크립트
 // @match        *://*/*order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
@@ -14,15 +14,31 @@
 (function () {
   "use strict";
 
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz-8fsM0YBHSQeVU0FF8sc1fTQ2xRsRtg6DgXNm15oB--DYos_zWU8ooI0CqntcQO5dWQ/exec";
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx_iydBXNvhEXYBQhgefOhyLA-Oa34VFfIkr7TSf99dkmvlPqbnB70kf7HibhnS4-bdvA/exec";
 
   const ORDER_NO_RE = /\b20\d{10,}\b/;
   const PHONE_RE = /01[0-9]-\d{3,4}-\d{4}/;
-  const TRACKING_RE = /운송장번호\s*:\s*(\d{10,14})/;
+  const TRACKING_RE = /운송장번호\s*:\s*(\d{10,14})/g;
+  const TRACKING_SINGLE_RE = /운송장번호\s*:\s*(\d{10,14})/;
   const TOTAL_RE = /결제금액\s*([0-9,]+원)/;
 
   function getOrderBlocks() {
     return [...document.querySelectorAll(".print-wrap")];
+  }
+
+  function normalizeTrackingNumber(value) {
+    return String(value || "")
+      .replace(/\D/g, "")
+      .trim();
+  }
+
+  function extractTrackingNumbers(text) {
+    const matches = [...String(text || "").matchAll(TRACKING_RE)];
+    const trackingNumbers = matches
+      .map((match) => normalizeTrackingNumber(match[1] || ""))
+      .filter(Boolean);
+
+    return [...new Set(trackingNumbers)];
   }
 
   function extractOrderData(container) {
@@ -32,7 +48,8 @@
 
     const order_no = (text.match(ORDER_NO_RE) || [""])[0];
     const phone = (text.match(PHONE_RE) || [""])[0];
-    const tracking = (text.match(TRACKING_RE) || ["",""])[1] || "";
+    const trackingNumbers = extractTrackingNumbers(text);
+    const tracking = trackingNumbers[0] || "";
     const total_price = (text.match(TOTAL_RE) || ["",""])[1] || "";
 
     const dateMatch = text.match(/주문일자\s*([0-9:\-\s]+)/);
@@ -71,7 +88,10 @@
     else if (numericTotal < 10000000 && !cleanTracking) {
       deliveryType = "PICKUP";
     }
-    // 4️⃣ 그 외 → POST
+    // 4️⃣ 운송장 1개 이상 존재 → POST
+    else if (trackingNumbers.length > 0) {
+      deliveryType = "POST";
+    }
 
     /* ==========================
        🔥 주문자 정보 정확 추출
@@ -125,6 +145,7 @@ if (tds.length === 6) {
     order_no,
     order_date,
     tracking,
+    trackingNumbers,
     name,
     phone: ordererPhone,
     address,
@@ -162,6 +183,7 @@ if (shippingFee) {
     order_no,
     order_date,
     tracking,
+    trackingNumbers,
     name,
     phone: ordererPhone,
     address,
