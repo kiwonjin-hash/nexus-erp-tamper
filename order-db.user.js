@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         검수 DB
 // @namespace    yeouidogold
-// @version      1.0.6
+// @version      1.0.7
 // @description  주문 검수 스크립트
 // @match        *://*/*order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
@@ -129,36 +129,36 @@ rows.forEach(tr => {
   const tds = tr.querySelectorAll("td");
 
   // =====================
-  // 1️⃣ 상품 행 (6칸 구조)
+  // 1️⃣ 상품 행 (옵션 포함 가변 구조 대응)
   // =====================
-if (tds.length === 6) {
+  if (tds.length >= 6) {
 
-  const productName = tds[1]?.innerText.trim();
-  const status = tds[2]?.innerText.trim();   // 🔥 여기 핵심
-  const qty = tds[3]?.innerText.trim();
-  const unitPrice = tds[4]?.innerText.trim();
-  const subtotal = tds[5]?.innerText.trim();
+    const productName = tds[1]?.innerText.trim();
+    const status = tds[2]?.innerText.trim();
+    const qty = tds[3]?.innerText.trim();
+    const unitPrice = tds[4]?.innerText.trim();
+    const subtotal = tds[tds.length - 1]?.innerText.trim(); // 마지막 칸을 소계로 처리
 
-  if (!productName || !qty) return;
+    // 수량이 숫자인 행만 상품으로 인정
+    if (!productName || !qty || isNaN(parseInt(qty))) return;
 
-  resultRows.push({
-    order_no,
-    order_date,
-    tracking,
-    trackingNumbers,
-    name,
-    phone: ordererPhone,
-    address,
-    receiver,
-    items: productName,
-    qty,
-    unit_price: unitPrice,
-    total_price: subtotal,
-    deliveryType,
-    type: "product",
-    status: status.replace(/\s/g,"") // 공백 제거
-  });
-}
+    resultRows.push({
+      order_no,
+      order_date,
+      tracking,
+      trackingNumbers,
+      name,
+      phone: ordererPhone,
+      address,
+      receiver,
+      items: `[${deliveryType}] ${productName}`,
+      qty,
+      unit_price: unitPrice,
+      total_price: subtotal,
+      type: "product",
+      status: status.replace(/\s/g, "")
+    });
+  }
 
   // =====================
   // 2️⃣ 배송비 행 (2칸 구조)
@@ -188,13 +188,11 @@ if (shippingFee) {
     phone: ordererPhone,
     address,
     receiver,
-    items: "배송비",
+    items: `[${deliveryType}] 배송비`,
     qty: "",
     unit_price: "",
     total_price: shippingFee,
-    deliveryType,
     type: "shipping"
-
   });
 }
 
