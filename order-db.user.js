@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         검수 DB
 // @namespace    yeouidogold
-// @version      1.0.8
+// @version      1.0.9
 // @description  주문 검수 스크립트
 // @match        *://*/*order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
@@ -74,7 +74,7 @@
     const cleanTracking = (tracking || "").trim();
     const cleanAddress = (address || "").replace(/\s/g, "");
 
-    let deliveryType = "";
+    let deliveryType = "POST";
 
     // 1️⃣ 주소가 비어있거나 (), → 방문수령
     if (!cleanAddress || cleanAddress === "(),") {
@@ -88,10 +88,9 @@
     else if (numericTotal < 10000000 && !cleanTracking) {
       deliveryType = "PICKUP";
     }
-
-    // 기본은 택배이므로 POST는 굳이 표기하지 않음
-    if (!deliveryType && trackingNumbers.length > 0) {
-      deliveryType = "";
+    // 4️⃣ 운송장 1개 이상 존재 → POST
+    else if (trackingNumbers.length > 0) {
+      deliveryType = "POST";
     }
 
     /* ==========================
@@ -130,15 +129,31 @@ rows.forEach(tr => {
   const tds = tr.querySelectorAll("td");
 
   // =====================
-  // 1️⃣ 상품 행 (옵션 포함 가변 구조 대응)
+  // 1️⃣ 상품 행 (옵션 구조 안전 처리)
   // =====================
   if (tds.length >= 6) {
 
-    const productName = tds[1]?.innerText.trim();
-    const status = tds[2]?.innerText.trim();
-    const qty = tds[3]?.innerText.trim();
-    const unitPrice = tds[4]?.innerText.trim();
-    const subtotal = tds[tds.length - 1]?.innerText.trim(); // 마지막 칸을 소계로 처리
+    let productName = tds[1]?.innerText.trim();
+    let optionText = "";
+    let status = "";
+    let qty = "";
+    let unitPrice = "";
+
+    // 일반 상품 (6칸)
+    if (tds.length === 6) {
+      status = tds[2]?.innerText.trim();
+      qty = tds[3]?.innerText.trim();
+      unitPrice = tds[4]?.innerText.trim();
+    }
+    // 옵션 포함 상품 (7칸)
+    else if (tds.length === 7) {
+      optionText = tds[2]?.innerText.trim();
+      status = tds[3]?.innerText.trim();
+      qty = tds[4]?.innerText.trim();
+      unitPrice = tds[5]?.innerText.trim();
+    }
+
+    const subtotal = tds[tds.length - 1]?.innerText.trim();
 
     // 수량이 숫자인 행만 상품으로 인정
     if (!productName || !qty || isNaN(parseInt(qty))) return;
@@ -152,10 +167,11 @@ rows.forEach(tr => {
       phone: ordererPhone,
       address,
       receiver,
-      items: productName,
+      items: optionText ? `${productName} / ${optionText}` : productName,
       qty,
       unit_price: unitPrice,
       total_price: subtotal,
+      deliveryType,
       type: "product",
       status: status.replace(/\s/g, "")
     });
@@ -193,7 +209,9 @@ if (shippingFee) {
     qty: "",
     unit_price: "",
     total_price: shippingFee,
+    deliveryType,
     type: "shipping"
+
   });
 }
 
