@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         검수 DB
 // @namespace    yeouidogold
-// @version      1.0.9
+// @version      1.0.10
 // @description  주문 검수 스크립트
 // @match        *://*/*order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
