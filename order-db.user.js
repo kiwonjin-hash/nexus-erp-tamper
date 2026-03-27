@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         검수 DB
 // @namespace    yeouidogold
-// @version      1.0.7
+// @version      1.0.8
 // @description  주문 검수 스크립트
 // @match        *://*/*order_print_popup.cm*
 // @grant        GM_xmlhttpRequest
@@ -74,7 +74,7 @@
     const cleanTracking = (tracking || "").trim();
     const cleanAddress = (address || "").replace(/\s/g, "");
 
-    let deliveryType = "POST";
+    let deliveryType = "";
 
     // 1️⃣ 주소가 비어있거나 (), → 방문수령
     if (!cleanAddress || cleanAddress === "(),") {
@@ -88,9 +88,10 @@
     else if (numericTotal < 10000000 && !cleanTracking) {
       deliveryType = "PICKUP";
     }
-    // 4️⃣ 운송장 1개 이상 존재 → POST
-    else if (trackingNumbers.length > 0) {
-      deliveryType = "POST";
+
+    // 기본은 택배이므로 POST는 굳이 표기하지 않음
+    if (!deliveryType && trackingNumbers.length > 0) {
+      deliveryType = "";
     }
 
     /* ==========================
@@ -151,7 +152,7 @@ rows.forEach(tr => {
       phone: ordererPhone,
       address,
       receiver,
-      items: `[${deliveryType}] ${productName}`,
+      items: productName,
       qty,
       unit_price: unitPrice,
       total_price: subtotal,
@@ -188,7 +189,7 @@ if (shippingFee) {
     phone: ordererPhone,
     address,
     receiver,
-    items: `[${deliveryType}] 배송비`,
+    items: "배송비",
     qty: "",
     unit_price: "",
     total_price: shippingFee,
